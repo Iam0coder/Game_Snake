@@ -16,6 +16,7 @@ GRIDSIZE = 20
 GRID_WIDTH = SCREEN_WIDTH // GRIDSIZE
 GRID_HEIGHT = SCREEN_HEIGHT // GRIDSIZE
 
+
 class Snake:
     # Конструктор класса Snake, принимает скорость как параметр
     def __init__(self, speed):
@@ -73,6 +74,7 @@ class Snake:
                 elif event.key == pygame.K_RIGHT:
                     self.turn(RIGHT)
 
+
 class Food:
     # Конструктор класса Food
     def __init__(self):
@@ -82,7 +84,8 @@ class Food:
 
     # Метод для размещения еды в новой случайной позиции
     def randomize_position(self):
-        self.position = (random.randint(0, GRID_WIDTH - 1) * GRIDSIZE, random.randint(0, GRID_HEIGHT - 1) * GRIDSIZE)
+        self.position = (random.randint(0, GRID_WIDTH - 1) * GRIDSIZE,
+                         random.randint(0, GRID_HEIGHT - 1) * GRIDSIZE)
 
     # Метод для отрисовки еды на экране
     def draw(self, surface):
@@ -90,9 +93,11 @@ class Food:
         pygame.draw.rect(surface, self.color, r)
         pygame.draw.rect(surface, (93, 216, 228), r, 1)  # Границы сегмента
 
+
 class Game:
     # Конструктор класса Game
     def __init__(self):
+        self.high_scores = None
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
         pygame.display.set_caption("Игра - Змейка")  # Название окна игры
@@ -128,10 +133,12 @@ class Game:
         speeds = [10, 20, 30]
         while intro:
             self.screen.fill((0, 0, 0))
-            self.draw_text('Выберите сложность:', 30, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 5, (255, 255, 255))
+            self.draw_text('Выберите сложность:', 30, SCREEN_WIDTH // 2,
+                           SCREEN_HEIGHT // 5, (255, 255, 255))
             for i, difficulty in enumerate(difficulties):
                 color = (0, 255, 0) if i == selected_index else (255, 255, 255)
-                self.draw_text(f"{i + 1}. {difficulty}", 24 if i == selected_index else 20, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4 + 40 * (i + 1), color)
+                self.draw_text(f"{i + 1}. {difficulty}", 24 if i == selected_index else 20, SCREEN_WIDTH // 2,
+                               SCREEN_HEIGHT // 4 + 40 * (i + 1), color)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -142,7 +149,6 @@ class Game:
                     elif event.key == pygame.K_UP:
                         selected_index = (selected_index - 1) % len(difficulties)
                     elif event.key == pygame.K_RETURN:
-                        intro = False
                         return speeds[selected_index], difficulties[selected_index]
             pygame.display.update()
 
@@ -160,19 +166,23 @@ class Game:
     def game_over_screen(self, score, difficulty, restart_game):
         current_scores = self.high_scores.get(difficulty, [])
         textbox = pygame.Rect(SCREEN_WIDTH // 4, SCREEN_HEIGHT // 5, SCREEN_WIDTH // 2, 40)
-        color_inactive = pygame.Color('lightskyblue3')
-        color_active = pygame.Color('dodgerblue2')
+        color_inactive = pygame.Color("lightskyblue3")
+        color_active = pygame.Color("dodgerblue2")
         color = color_inactive
         active = False
         text = ''
         done = False
 
-        font = pygame.font.SysFont('Comic Sans MS', 24)
+        font = pygame.font.SysFont("Comic Sans MS", 24)
         while not done:
             self.screen.fill((0, 0, 0))
-            self.draw_text(f'Игра окончена! Длинна вашей змейки - {self.snake.score} см \n Введите ваше имя для сложности {difficulty}:', 18, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 10)
+            self.draw_text(
+                f'Игра окончена! Длинна вашей змейки - {self.snake.score} см \n '
+                f'Введите ваше имя для сложности {difficulty}:',
+                18, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 10)
             for idx, entry in enumerate(current_scores):
-                self.draw_text(f'{idx+1}. {entry["name"]} - {entry["score"]}', 18, SCREEN_WIDTH // 2, 180 + 40 * idx)
+                self.draw_text(f'{idx + 1}. {entry["name"]} - {entry["score"]}', 18,
+                               SCREEN_WIDTH // 2, 180 + 40 * idx)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -199,12 +209,14 @@ class Game:
             text_rect = txt_surface.get_rect(center=(textbox.centerx, textbox.centery))
             self.screen.blit(txt_surface, text_rect)
             pygame.draw.rect(self.screen, color, textbox, 2)
-            self.draw_button("Рестарт", 50, 400, 'restart', (0, 255, 0), (0, 200, 0), restart_game)
-            self.draw_button("Выход", 330, 400, 'exit', (255, 0, 0), (200, 0, 0), sys.exit)
+            self.draw_button("Рестарт", 50, 400,
+                             (0, 255, 0), (0, 200, 0), restart_game)
+            self.draw_button("Выход", 330, 400,
+                             (255, 0, 0), (200, 0, 0), sys.exit)
             pygame.display.update()
 
     # Метод для отрисовки кнопок
-    def draw_button(self, text, x, y, id, active_color, inactive_color, action=None):
+    def draw_button(self, text, x, y, active_color, inactive_color, action=None):
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         button_width = 100
@@ -223,19 +235,13 @@ class Game:
             self.snake.handle_keys()
             self.draw()
             if self.snake.move():
-                self.game_over_screen(self.snake.score, self.difficulty, self.game_restart)
+                self.game_over_screen(self.snake.score, self.difficulty, game_restart)
                 break
             if self.snake.get_head_position() == self.food.position:
                 self.snake.length += 1
                 self.snake.score += 1
                 self.food.randomize_position()
             self.clock.tick(self.snake.speed)  # Управление скоростью игры
-
-    # Метод для перезапуска игры
-    def game_restart(self):
-        game = Game()
-        game.run()
-        sys.exit()
 
     # Метод для отрисовки игрового поля и элементов
     def draw(self):
@@ -244,6 +250,14 @@ class Game:
         self.food.draw(self.screen)
         self.draw_text(f'Длинна змейки: {self.snake.score} см', 20, SCREEN_WIDTH // 2, 10)
         pygame.display.update()
+
+
+# Метод для перезапуска игры
+def game_restart():
+    game_r = Game()
+    game_r.run()
+    sys.exit()
+
 
 if __name__ == "__main__":
     game = Game()
